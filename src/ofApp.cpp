@@ -33,7 +33,7 @@ void ofApp::setup(){
     //go through and print out all the paths
     for(int i = 0; i < (int)dir.size(); i++){
         // set scrollPlayer
-        shared_ptr<ofVideoPlayer> player = std::make_shared<ofVideoPlayer>();
+        shared_ptr<MovingVideoPlayer> player = std::make_shared<MovingVideoPlayer>();
         player->load(dir.getPath(i));
         player->setLoopState(OF_LOOP_NONE);
         player->stop();
@@ -81,21 +81,20 @@ void ofApp::update(){
     for(int i = scrollPlayer.rightViewId; i < scrollPlayer.rightViewId+3; i++){
         int playerIndex = i%(int)scrollPlayer.players.size();
         // when the view has reached or stepped over the borderPosition
-        if (!scrollPlayer.players[playerIndex]->isPlaying() &&  scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId-1) > borderPosition*ofGetWidth()){
+        if (!scrollPlayer.players[playerIndex]->isPlaying() && !scrollPlayer.players[playerIndex]->getIsMovieDone() && scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId-1) > borderPosition*ofGetWidth()){
             // set playback speed
             if (enableFullPlay) {
                 float playbackSpeed = scrollPlayer.players[playerIndex]->getDuration() * scrollPlayer.movingSpeed.x * ofGetTargetFrameRate() / scrollPlayer.players[playerIndex]->getWidth();
-                cout << "playbackSpeed" << endl;
                 scrollPlayer.players[playerIndex]->setSpeed(playbackSpeed);
             }
-            // update player state
-            scrollPlayer.players[playerIndex]->play();
             // unmute the sound of the player
             scrollPlayer.players[playerIndex]->setVolume(1.0);
+            // play the player
+            scrollPlayer.players[playerIndex]->play();
         }
-
+        
         // when the view has passed the borderPosition
-        if (scrollPlayer.players[playerIndex]->isPlaying() && scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId) > borderPosition*ofGetWidth()){
+        if (scrollPlayer.players[playerIndex]->isPlaying() && !scrollPlayer.players[playerIndex]->isMuted && scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId) > borderPosition*ofGetWidth()){
             // mute the sound of the player
             scrollPlayer.players[playerIndex]->setVolume(0.0);
         }

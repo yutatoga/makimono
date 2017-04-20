@@ -14,9 +14,23 @@
 #define DEBUG_PLAYER_WIDTH 128
 #define DEBUG_PLAYER_HEIGHT 72
 
+class MovingVideoPlayer: public ofVideoPlayer{
+public:
+    void setVolume(float volume){
+        if(volume == 0) {
+            isMuted = true;
+        } else {
+            isMuted = false;
+            ofVideoPlayer::setVolume(volume);
+        }
+    }
+    
+    bool isMuted;
+};
+
 class ScrollPlayer{
 public:
-    vector<shared_ptr<ofVideoPlayer>> players;
+    vector<shared_ptr<MovingVideoPlayer>> players;
     int rightViewId;
     ofVec2f rightViewPosition;
     ofVec2f movingSpeed;
