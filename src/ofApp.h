@@ -58,6 +58,7 @@ class ofApp : public ofBaseApp{
     ofParameter<string> fps;
     ofParameter<bool> enableDrawAllPlayers;
     ofParameter<bool> enableDrawBorder;
+    ofParameter<bool> enableFullPlay;
     ofParameter<float> windowSize;
     ofParameter<float> borderPosition;
     ofxLabel shortCutInfo;

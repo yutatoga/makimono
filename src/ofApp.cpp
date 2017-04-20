@@ -12,6 +12,7 @@ void ofApp::setup(){
     panel.add(fps.set("FPS", ""));
     panel.add(enableDrawAllPlayers.set("draw all players", false));
     panel.add(enableDrawBorder.set("draw border", false));
+    panel.add(enableFullPlay.set("full play", false));
     panel.add(movingSpeed.set("moving speed", ofVec2f(1, 0), ofVec2f(SPEED_MINIMUM_X, SPEED_MINIMUM_Y), ofVec2f(SPEED_MAXIMUM_X, SPEED_MAXIMUM_Y)));
     panel.add(windowSize.set("window size", 0.5, 0, 1));
     panel.add(borderPosition.set("border position", 0.5, 0, 1));
@@ -79,9 +80,14 @@ void ofApp::update(){
     // update 3 of players which are right view, left view, standby view.
     for(int i = scrollPlayer.rightViewId; i < scrollPlayer.rightViewId+3; i++){
         int playerIndex = i%(int)scrollPlayer.players.size();
-        
         // when the view has reached or stepped over the borderPosition
         if (!scrollPlayer.players[playerIndex]->isPlaying() &&  scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId-1) > borderPosition*ofGetWidth()){
+            // set playback speed
+            if (enableFullPlay) {
+                float playbackSpeed = scrollPlayer.players[playerIndex]->getDuration() * scrollPlayer.movingSpeed.x * ofGetTargetFrameRate() / scrollPlayer.players[playerIndex]->getWidth();
+                cout << "playbackSpeed" << endl;
+                scrollPlayer.players[playerIndex]->setSpeed(playbackSpeed);
+            }
             // update player state
             scrollPlayer.players[playerIndex]->play();
             // unmute the sound of the player
