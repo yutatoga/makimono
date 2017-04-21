@@ -8,7 +8,7 @@ void ofApp::setup(){
     borderPosition.addListener(this, &ofApp::borderPositionChanged);
     
     showGui = true;
-    panel.setup();
+    panel.setup("panel", SETTING_FILE_NAME, GUI_POSITION_X, GUI_POSITION_Y);
     panel.add(fps.set("FPS", ""));
     panel.add(enableDrawAllPlayers.set("draw all players", false));
     panel.add(enableDrawBorder.set("draw border", false));
@@ -173,6 +173,11 @@ void ofApp::keyPressed(int key){
             showGui = !showGui;
             showGui ? ofShowCursor() : ofHideCursor();
             break;
+        case 's': // save the gui setting
+            panel.saveToFile(SETTING_FILE_NAME);
+            break;
+        case 'l': // load the gui setting
+            panel.loadFromFile(SETTING_FILE_NAME);
         default:
             break;
     }

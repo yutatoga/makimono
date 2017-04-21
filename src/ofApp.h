@@ -3,14 +3,20 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
+#define FRAME_RATE 60
+
+//gui
 #define SPEED_MINIMUM_X 0
 #define SPEED_MINIMUM_Y -30
 
 #define SPEED_MAXIMUM_X 30
 #define SPEED_MAXIMUM_Y 30
 
-#define FRAME_RATE 60
+#define GUI_POSITION_X 10
+#define GUI_POSITION_Y 10
+#define SETTING_FILE_NAME "settings.xml"
 
+// debug
 #define DEBUG_PLAYER_WIDTH 128
 #define DEBUG_PLAYER_HEIGHT 72
 
