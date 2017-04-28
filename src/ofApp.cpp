@@ -147,8 +147,8 @@ void ofApp::update(){
     // update 3 of players which are right view, left view, standby view.
     for(int i = scrollPlayer.rightViewId; i < scrollPlayer.rightViewId+3; i++){
         int playerIndex = i%(int)scrollPlayer.players.size();
-        // int previousPlayerIndex = playerIndex-1;
-        // if (previousPlayerIndex < 0) previousPlayerIndex = scrollPlayer.players.size()-1; // = index of the last element
+        int previousPlayerIndex = playerIndex-1;
+        if (previousPlayerIndex < 0) previousPlayerIndex = scrollPlayer.players.size()-1; // = index of the last element
         // when the view has reached or stepped over the borderPosition
         if (!scrollPlayer.players[playerIndex]->isPlaying() && !scrollPlayer.players[playerIndex]->getIsMovieDone() && scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId-1) > borderPosition*ofGetWidth()){
             // set playback speed
@@ -156,18 +156,12 @@ void ofApp::update(){
                 float playbackSpeed = scrollPlayer.players[playerIndex]->getDuration() * scrollPlayer.movingSpeed.x * ofGetTargetFrameRate() / scrollPlayer.players[playerIndex]->getWidth();
                 scrollPlayer.players[playerIndex]->setSpeed(playbackSpeed);
             }
+            // mute the sound of the previous player
+            scrollPlayer.players[previousPlayerIndex]->setVolume(0.0);
             // unmute the sound of the player
             scrollPlayer.players[playerIndex]->setVolume(1.0);
-            // mute the sound of the previous player
-            // scrollPlayer.players[previousPlayerIndex]->setVolume(0.0);
             // play the player
             scrollPlayer.players[playerIndex]->play();
-        }
-        
-        // when the view has passed the borderPosition
-        if (scrollPlayer.players[playerIndex]->isPlaying() && !scrollPlayer.players[playerIndex]->isMuted && scrollPlayer.rightViewPosition.x - scrollPlayer.players[0]->getWidth() * (i-scrollPlayer.rightViewId) > borderPosition*ofGetWidth()){
-            // mute the sound of the player
-            scrollPlayer.players[playerIndex]->setVolume(0.0);
         }
         
         // update player
