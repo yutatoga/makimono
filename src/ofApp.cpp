@@ -77,6 +77,8 @@ void ofApp::setup(){
     soundDevice = soundStream.getDeviceList()[SOUND_DEVICE_ID];
     soundStream.setup(this, soundDevice.outputChannels, soundDevice.inputChannels, soundDevice.sampleRates[SOUND_SAMPLE_RATES_INDEX], SOUND_BUFFER_SIZE, SOUND_NUMBER_OF_BUFFER);
     
+    loading = false;
+    
     cout << "----- finished setup -----" << endl << endl;
 }
 
@@ -89,6 +91,7 @@ void ofApp::borderPositionChanged(float &borderPosition){
 }
 
 void ofApp::recordingSwitchChanged(bool &recordingSwitch){
+    cout << "recordingSwitchChanged" << endl;
     if(recordingSwitch){
         if (videoRecorder.isInitialized()) {
             // restart recording
@@ -119,6 +122,8 @@ void ofApp::audioIn(float *input, int bufferSize, int nChannels){
 
 void ofApp::recordingComplete(ofxVideoRecorderOutputFileCompleteEventArgs& args){
     cout << "The recoded video file is now complete: " + args.fileName << endl;
+    loading = true;
+    loadingFileName = args.fileName;
 }
 
 void ofApp::exit(){
@@ -180,12 +185,23 @@ void ofApp::update(){
     // gui
     fps = ofToString(ofGetFrameRate(), 0);
     
-    
+    // load the new video
+    if (loading){
+        shared_ptr<MovingVideoPlayer> player = std::make_shared<MovingVideoPlayer>();
+        player->load(loadingFileName);
+        if(player->isLoaded()){
+            player->setLoopState(OF_LOOP_NONE);
+            player->stop();
+            scrollPlayer.players.push_back(player);
+            loading = false;
+            cout << "loaded the new video" << endl;
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    // draw 3 of players which are right view, left view, stadnby view.
+    // draw 3 of players which are right view, left view, standby view.
     for(int i = scrollPlayer.rightViewId; i < scrollPlayer.rightViewId+3; i++){
         int playerIndex = i%(int)scrollPlayer.players.size();
         ofVec2f playerPosition(scrollPlayer.rightViewPosition-(i-scrollPlayer.rightViewId)*ofVec2f(scrollPlayer.players[0]->getWidth(),0));
@@ -311,11 +327,15 @@ void ofApp::keyPressed(int key){
             showGui = !showGui;
             showGui ? ofShowCursor() : ofHideCursor();
             break;
+        case 'l': // load the gui setting
+            panel.loadFromFile(SETTING_FILE_NAME);
+            break;
+        case 'r': // rec start/stop
+            recordingSwitch = !recordingSwitch;
+            break;
         case 's': // save the gui setting
             panel.saveToFile(SETTING_FILE_NAME);
             break;
-        case 'l': // load the gui setting
-            panel.loadFromFile(SETTING_FILE_NAME);
         default:
             break;
     }

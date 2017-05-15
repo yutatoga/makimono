@@ -1,8 +1,15 @@
 #pragma once
 
 #include "ofMain.h"
+
+// addons
 #include "ofxGui.h"
 #include "ofxVideoRecorder.h"
+
+// classes
+#include "MovingVideoPlayer.h"
+#include "ScrollPlayer.h"
+#include "MovingVideoPlayer.h"
 
 #define FRAME_RATE 60
 
@@ -40,26 +47,7 @@
 #define DEBUG_PLAYER_WIDTH 128
 #define DEBUG_PLAYER_HEIGHT 72
 
-class MovingVideoPlayer: public ofVideoPlayer{
-public:
-    void setVolume(float volume){
-        isMuted = (volume == 0);
-        ofVideoPlayer::setVolume(volume);
-    }
-    
-    bool isMuted;
-};
-
-class ScrollPlayer{
-public:
-    vector<shared_ptr<MovingVideoPlayer>> players;
-    int rightViewId;
-    ofVec2f rightViewPosition;
-    ofVec2f movingSpeed;
-};
-
 class ofApp : public ofBaseApp{
-
 	public:
 		void setup();
 		void update();
@@ -98,6 +86,8 @@ class ofApp : public ofBaseApp{
     ofxVideoRecorder videoRecorder;
     ofSoundStream soundStream;
     ofSoundDevice soundDevice;
+    bool loading;
+    string loadingFileName;
     
     // gui
     bool showGui;
