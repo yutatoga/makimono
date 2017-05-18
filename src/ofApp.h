@@ -29,13 +29,17 @@
 
 // video recorder
 #define VIDEO_FOLDER_NAME "movies"
+#define VIDEO_ERROR_FOLDER_NAME "error"
 #define VIDEO_FILE_NAME_HEADER "testMovie_"
 #define VIDEO_FILE_NAME_EXTENSION ".mov"
 #define VIDEO_DEVICE_ID 0
 #define VIDEO_CODEC "mpeg4"
 #define VIDEO_BITRATE "800k"
+#define VIDEO_RECORDER_FRAME_RATE 30
+#define VIDEO_MINIMUM_LENGTH 3
 #define AUDIO_CODEC "mp3"
 #define AUDIO_BITRATE "192k"
+
 
 // sound stream
 #define SOUND_DEVICE_ID 0

@@ -57,6 +57,7 @@ void ofApp::setup(){
     }
     
     ofSetFrameRate(FRAME_RATE);
+    ofSetLogLevel(OF_LOG_VERBOSE);
     
     // videoGrabber
     videoGrabber.setDeviceID(VIDEO_DEVICE_ID);
@@ -79,6 +80,12 @@ void ofApp::setup(){
     
     loading = false;
     
+    // directbory
+    string directoryForMovies =  "mkdir " + ofToDataPath("") + VIDEO_FOLDER_NAME;
+    system(directoryForMovies.c_str());
+    string directoryForError = "mkdir " + ofToDataPath("") + VIDEO_FOLDER_NAME + "/" + VIDEO_ERROR_FOLDER_NAME;
+    system(directoryForError.c_str());
+    
     cout << "----- finished setup -----" << endl << endl;
 }
 
@@ -91,24 +98,29 @@ void ofApp::borderPositionChanged(float &borderPosition){
 }
 
 void ofApp::recordingSwitchChanged(bool &recordingSwitch){
-    cout << "recordingSwitchChanged" << endl;
+    ofLogVerbose("recordingSwitchChanged") << recordingSwitch;
     if(recordingSwitch){
         if (videoRecorder.isInitialized()) {
             // restart recording
             videoRecorder.setPaused(false);
+            cout << "videoRecorder: pause(restart)" << endl;
         } else {
-            videoRecorder.setup(VIDEO_FOLDER_NAME + std::string("/") + VIDEO_FILE_NAME_HEADER+ofGetTimestampString()+VIDEO_FILE_NAME_EXTENSION, videoGrabber.getWidth(), videoGrabber.getHeight(), 30, soundDevice.sampleRates[SOUND_SAMPLE_RATES_INDEX], soundDevice.inputChannels);
+            string fileName = VIDEO_FOLDER_NAME + std::string("/") + VIDEO_FILE_NAME_HEADER+ofGetTimestampString()+VIDEO_FILE_NAME_EXTENSION;
+            videoRecorder.setup(fileName, videoGrabber.getWidth(), videoGrabber.getHeight(), VIDEO_RECORDER_FRAME_RATE, soundDevice.sampleRates[SOUND_SAMPLE_RATES_INDEX], soundDevice.inputChannels, false , true);
             // start recording
             videoRecorder.start();
+            ofLogVerbose("videoRecorder: start");
         }
     }else{
         if (videoRecorder.isInitialized()){
             if (ofGetKeyPressed(OF_KEY_SHIFT)) {
                 // pause recording
                 videoRecorder.setPaused(true);
+                ofLogVerbose("videoRecorder: pause(pause)");
             } else {
                 // stop recording
                 videoRecorder.close();
+                ofLogVerbose("videoRecorder: stop");
             }
         } else {
             ofLogWarning("do nothing");
@@ -121,9 +133,21 @@ void ofApp::audioIn(float *input, int bufferSize, int nChannels){
 }
 
 void ofApp::recordingComplete(ofxVideoRecorderOutputFileCompleteEventArgs& args){
-    cout << "The recoded video file is now complete: " + args.fileName << endl;
-    loading = true;
-    loadingFileName = args.fileName;
+    ofLogVerbose("The recoded video file is now complete") << args.fileName;
+    float duration = (float)videoRecorder.getNumVideoFramesRecorded()/VIDEO_RECORDER_FRAME_RATE;
+    if (duration < VIDEO_MINIMUM_LENGTH) {
+        ofLogWarning("recording was shorter than VIDEO_MINIMUM_LENGTH: ") << duration << endl;
+        // do NOT load this file
+        loading = false;
+        // move the recorded video file to the error folder
+        string originalPath = ofToDataPath(args.fileName);
+        string destinationPath = ofToDataPath("") + args.fileName.insert(strlen(VIDEO_FOLDER_NAME), "/" VIDEO_ERROR_FOLDER_NAME);
+        string systemCommand = "mv " + originalPath + " " + destinationPath;
+        system(systemCommand.c_str());
+    } else {
+        loading = true;
+        loadingFileName = args.fileName;
+    }
 }
 
 void ofApp::exit(){
@@ -194,7 +218,7 @@ void ofApp::update(){
             player->stop();
             scrollPlayer.players.push_back(player);
             loading = false;
-            cout << "loaded the new video" << endl;
+            ofLogVerbose("loaded the new video");
         }
     }
 }
