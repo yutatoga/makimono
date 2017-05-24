@@ -20,6 +20,8 @@ void ofApp::setup(){
     panel.add(windowSize.set("window size", 0.5, 0, 1));
     panel.add(borderPosition.set("border position", 0.5, 0, 1));
     panel.add(recordingSwitch.set("recording switch", false));
+    panel.add(enableFixedTimeRecording.set("fixed time recording", false));
+    panel.add(recordingTime.set("recording time", VIDEO_MAXIMUM_LENGTH, VIDEO_MINIMUM_LENGTH, VIDEO_MAXIMUM_LENGTH));
     panel.add(shortCutInfo.setup("hide/show GUI", "type h"));
     
     //some path, may be absolute or relative to bin/data
@@ -200,8 +202,15 @@ void ofApp::update(){
     // videoGrabber
     videoGrabber.update();
     if (videoGrabber.isFrameNew() && recordingSwitch){
-        bool success = videoRecorder.addFrame(videoGrabber.getPixels());
-        if (!success) ofLogWarning("This frame was not added");
+        float duration = (float)videoRecorder.getNumVideoFramesRecorded()/VIDEO_RECORDER_FRAME_RATE;
+        if (enableFixedTimeRecording && duration > recordingTime) {
+            // stop recording
+            ofLogVerbose("videoRecorder: stop (reached the limit of the recording duration)");
+            recordingSwitch = false;
+        } else {
+            bool success = videoRecorder.addFrame(videoGrabber.getPixels());
+            if (!success) ofLogWarning("This frame was not added");
+        }
     }
     if (videoRecorder.hasVideoError()) ofLogWarning("The video recorder failed to write some frames");
     if (videoRecorder.hasAudioError()) ofLogWarning("The video recorder failed to write some audio samples");

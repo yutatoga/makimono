@@ -37,6 +37,7 @@
 #define VIDEO_BITRATE "800k"
 #define VIDEO_RECORDER_FRAME_RATE 30
 #define VIDEO_MINIMUM_LENGTH 3
+#define VIDEO_MAXIMUM_LENGTH 10
 #define AUDIO_CODEC "mp3"
 #define AUDIO_BITRATE "192k"
 
@@ -106,5 +107,7 @@ class ofApp : public ofBaseApp{
     ofParameter<float> windowSize;
     ofParameter<float> borderPosition;
     ofParameter<bool> recordingSwitch;
+    ofParameter<bool> enableFixedTimeRecording;
+    ofParameter<float> recordingTime;
     ofxLabel shortCutInfo;
 };
